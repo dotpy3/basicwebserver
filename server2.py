@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 import socket
+import 
 
 class HttpErrorException:
 	def __init__(self,content):
@@ -52,6 +53,11 @@ class Server:
 		string = fileObject.read(1024)
 		fileObject.close()
 		return string
+
+	def genEnvironment(self):
+		env = {}
+		env['wsgi.version'] = (1,0)
+		env['wsgi.url_scheme'] = 'http'
 
 	def generateResponse(self,request):
 		try:
