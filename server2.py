@@ -16,18 +16,12 @@ class Server:
 
 	def __init__(self,HOST,PORT):
 		self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		# on commence par demander un socket, de famille AF_INET et de type SOCK_STREAM
-
 		self.listen_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		# premier parametre : definit le protocole
-
 		self.host = HOST
 		self.port = PORT
 
 	def launch(self):
 		self.listen_socket.bind((self.host,self.port))
-		# on associe le socket à une adresse
-
 		self.listen_socket.listen(1)
 		print "Serving HTTP on port %s ..." % self.port
 
@@ -35,23 +29,10 @@ class Server:
 			self.client_connection, self.client_address = self.listen_socket.accept()
 			request = self.client_connection.recv(1024)
 			self.interpretRequest(request)
-
 			self.client_connection.close()
 
 	def interpretRequest(self,request):
-		print "=======Requête :======="
-
-		print request
-
-		print "=====FIN REQUETE===="
-
 		http_response = self.generateResponse(request)
-
-		print "========Réponse :======"
-
-		print http_response
-
-		print "=======FIN REPONSE===="
 		self.client_connection.sendall(http_response)
 
 	def checkType(self,requesttype):
@@ -84,17 +65,20 @@ class Server:
 """+self.getFileContent(requestContent)
 			return content
 		except HttpErrorException as erreur:
-			return """HTTP/1.1 500 OK
+			return """HTTP/1.1 406 Not Acceptable
+Content-type: text/html
 
-<html><body><h1>500 Service Unavailable</h1>
+<html><body><h1>400 Bad Request</h1>
 <p>"""+erreur.getContent()+"</p></body></html>"
 		except (IndexError, ValueError):
-			return """HTTP/1.1 500 OK
+			return """HTTP/1.1 406 Not Acceptable
+Content-type: text/html
 
-<html><body><h1>500 Service Unavailable</h1>
+<html><body><h1>400 Bad Request</h1>
 <p>Incorrect type of request</p></body></html>"""
 		except IOError:
-			return """HTTP/1.1 404 OK
+			return """HTTP/1.1 404 Not Found
+Content-type: text/html
 
 <html><body><h1>404 Unavailable file</h1>
 <p>File cannot be found</p></body></html>"""
